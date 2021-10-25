@@ -19,3 +19,14 @@ class ExampleReplyMarkup(ReplyMarkupConstructor):
             {'text': '9', 'request_pool': KeyboardButtonPollType("regular")},
         ]
         return self.markup(actions, schema)
+
+
+class CancelMarkup(ReplyMarkupConstructor):
+    cancel_text = "Отмена"
+
+    def get(self):
+        schema = [1]
+        actions = [
+            {'text': self.cancel_text},
+        ]
+        return self.markup(actions, schema, True)

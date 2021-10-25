@@ -19,7 +19,7 @@ class ExampleInlineMarkup(InlineMarkupConstructor):
         return self.markup(actions, schema)
 
 
-class CancelMarkup(InlineMarkupConstructor):
+class CancelKb(InlineMarkupConstructor):
 
     def get(self):
         schema = [1]

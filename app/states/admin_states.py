@@ -7,3 +7,10 @@ class AnswerAdmin(StatesGroup):
 
 class BroadcastAdmin(StatesGroup):
     BROADCAST = State()
+
+
+class AdminGoods(StatesGroup):
+    TITLE = State()
+    DESCRIPTION = State()
+    PHOTO = State()
+    PRICE = State()

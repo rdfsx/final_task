@@ -41,6 +41,7 @@ async def on_shutdown(dp):
 def main():
     bot = Bot(token=Config.BOT_TOKEN, parse_mode=types.ParseMode.HTML)
     storage = MongoStorage(host=Config.MONGODB_HOSTNAME,
+                           port=Config.MONGODB_PORT,
                            db_name=f"{Config.MONGODB_DATABASE}_fsm",
                            password=Config.MONGODB_PASSWORD,
                            uri=Config.MONGODB_URI)

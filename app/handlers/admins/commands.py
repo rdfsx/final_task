@@ -1,11 +1,14 @@
 import asyncio
 import logging
+from typing import Union
 
 import aiofiles.os
 from aiogram import Dispatcher
-from aiogram.types import Message, InputFile
+from aiogram.dispatcher import FSMContext
+from aiogram.types import Message, InputFile, CallbackQuery
 from odmantic import AIOEngine
 
+from app.keyboards.reply import CancelMarkup
 from app.models import UserModel
 
 
@@ -40,7 +43,19 @@ async def write_users_to_file(m: Message, db: AIOEngine):
     await aiofiles.os.remove(filename)
 
 
+async def cancel_all(ctx: Union[CallbackQuery, Message], state: FSMContext):
+    await state.reset_state()
+    msg = ctx
+    if isinstance(ctx, CallbackQuery):
+        await ctx.answer()
+        msg = ctx.message
+        await msg.delete()
+    await msg.answer('Отменено.')
+
+
 def setup(dp: Dispatcher):
     dp.register_message_handler(get_amount_users, commands="amount", is_admin=True)
     dp.register_message_handler(get_exists_users, commands="exists_amount", is_admin=True)
     dp.register_message_handler(write_users_to_file, commands="users_file", is_admin=True)
+    dp.register_callback_query_handler(cancel_all, text='cancel', state='*', is_admin=True)
+    dp.register_message_handler(cancel_all, text=CancelMarkup.cancel_text, state='*', is_admin=True)

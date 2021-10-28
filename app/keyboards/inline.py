@@ -24,6 +24,32 @@ class CancelKb(InlineMarkupConstructor):
     def get(self):
         schema = [1]
         actions = [
-            {'text': 'Отмена', 'callback_data': 'cancel'},
+            {'text': 'Отмена', 'cb': 'cancel'},
         ]
         return self.markup(actions, schema)
+
+
+class MarketFinishKb(InlineMarkupConstructor):
+
+    def get(self):
+        schema = [1]
+        actions = [
+            {'text': 'Отмена', 'cb': 'cancel'},
+        ]
+        return self.markup(actions, schema)
+
+
+class EditGoodsKb(InlineMarkupConstructor):
+    edit_title = "edit_title"
+    edit_description = "edit_description"
+    edit_photo = "edit_photo"
+    save = "save_goods"
+
+    def get(self):
+        actions = [
+            {'text': 'Редактировать название', 'cb': self.edit_title},
+            {'text': 'Редактировать описание', 'cb': self.edit_description},
+            {'text': 'Редактировать фото', 'cb': self.edit_photo},
+            {'text': "Сохранить", 'cb': self.save}
+        ]
+        return self.markup(actions, [1] * len(actions))

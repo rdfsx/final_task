@@ -21,12 +21,14 @@ class ExampleReplyMarkup(ReplyMarkupConstructor):
         return self.markup(actions, schema)
 
 
-class CancelMarkup(ReplyMarkupConstructor):
+class MarketMarkup(ReplyMarkupConstructor):
     cancel_text = "Отмена"
+    back_text = "Назад"
 
     def get(self):
-        schema = [1]
+        schema = [1, 1]
         actions = [
             {'text': self.cancel_text},
+            {'text': self.back_text},
         ]
         return self.markup(actions, schema, True)

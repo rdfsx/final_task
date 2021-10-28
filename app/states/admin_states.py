@@ -14,3 +14,11 @@ class AdminGoods(StatesGroup):
     DESCRIPTION = State()
     PHOTO = State()
     PRICE = State()
+    FIN = State()
+
+
+class AdminEditGoods(StatesGroup):
+    TITLE = State()
+    DESCRIPTION = State()
+    PHOTO = State()
+    PRICE = State()

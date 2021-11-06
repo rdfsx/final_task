@@ -10,9 +10,8 @@ class ProductModel(Model):
     price: float = Field(...)
     photo: str = Field(...)
     created_at: datetime = Field(default=datetime.now())
-    updated_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default=datetime.now())
 
     class Config:
         collection = "Products"
         json_loads = json.loads
-        parse_doc_with_default_factories = True

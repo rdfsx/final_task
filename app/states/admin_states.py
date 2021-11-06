@@ -10,11 +10,7 @@ class BroadcastAdmin(StatesGroup):
 
 
 class AdminGoods(StatesGroup):
-    TITLE = State()
-    DESCRIPTION = State()
-    PHOTO = State()
-    PRICE = State()
-    FIN = State()
+    GOODS = State()
 
 
 class AdminEditGoods(StatesGroup):

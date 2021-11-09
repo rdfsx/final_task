@@ -1,5 +1,6 @@
 from aiogram import Dispatcher
-from aiogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent
+from aiogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent, InlineQueryResultCachedPhoto
+from aiogram.utils.markdown import hide_link
 from odmantic import AIOEngine
 
 from app.models import ProductModel
@@ -16,8 +17,11 @@ async def get_goods(inline: InlineQuery, db: AIOEngine):
                 InlineQueryResultArticle(
                     id=str(product.id),
                     title=product.title,
+                    thumb_url=product.photo_url,
                     description=f"${product.price}, {product.description}",
-                    input_message_content=InputTextMessageContent(product.title + product.description),
+                    input_message_content=InputTextMessageContent(
+                        product.title + product.description + hide_link(product.photo_url)
+                    ),
                 )
             )
     else:
@@ -30,7 +34,7 @@ async def get_goods(inline: InlineQuery, db: AIOEngine):
             )
         ]
     next_offset = str(offset + limit) if len(data) >= limit else ''
-    await inline.answer(results=results, next_offset=next_offset)
+    await inline.answer(results=results, next_offset=next_offset, cache_time=10)
 
 
 def setup(dp: Dispatcher):

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import NamedTuple
 
 from environs import Env
@@ -6,6 +7,8 @@ from environs import Env
 class Config(NamedTuple):
     __env = Env()
     __env.read_env()
+
+    BASE_DIR = Path(__name__).resolve().parent.parent
 
     BOT_TOKEN = __env.str('BOT_TOKEN')
 
@@ -21,3 +24,5 @@ class Config(NamedTuple):
     if MONGODB_USERNAME and MONGODB_PASSWORD:
         MONGODB_URI += f"{MONGODB_USERNAME}:{MONGODB_PASSWORD}@"
     MONGODB_URI += f"{MONGODB_HOSTNAME}:{MONGODB_PORT}"
+
+    DOWNLOADS_PATH = BASE_DIR / 'downloads'

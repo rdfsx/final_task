@@ -1,4 +1,6 @@
 import asyncio
+import os
+import time
 from typing import Union
 
 from aiogram import Dispatcher, types
@@ -7,9 +9,12 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold
 from odmantic import AIOEngine
 
+from app.config import Config
 from app.keyboards.inline import CancelKb, EditGoodsKb
 from app.models import ProductModel
+from app.services.uploader import upload_to_telegraph
 from app.states.admin_states import AdminGoods
+from app.utils.misc.clocks_decorator import set_clocks
 
 
 async def add_goods(ctx: Union[Message, CallbackQuery], state: FSMContext):
@@ -49,7 +54,15 @@ async def final_goods(m: Message, state: FSMContext):
     photo = m.photo[-1].file_id
     title = text[0]
     description = text[1]
-    await state.update_data(photo=photo, title=title, description=description, price=price)
+    photo_file = (await m.photo[-1].download(Config.DOWNLOADS_PATH / str(time.time()))).name
+    await state.update_data(
+        photo=photo,
+        title=title,
+        description=description,
+        price=price,
+        photo_url=(await upload_to_telegraph(photo_file))[0]
+    )
+    os.remove(photo_file)
     await state.reset_state(False)
     await m.answer("Готово! Вот, что получилось:")
     await m.answer_photo(photo, "\n\n".join(
@@ -61,14 +74,18 @@ async def final_goods(m: Message, state: FSMContext):
     ), reply_markup=EditGoodsKb().get())
 
 
+@set_clocks()
 async def save_goods(query: CallbackQuery, state: FSMContext, db: AIOEngine):
     await query.answer()
     await query.message.edit_reply_markup()
     data = await state.get_data()
-    product = ProductModel(title=data.get("title"),
-                           description=data.get("description"),
-                           price=float(data.get("price")),
-                           photo=data.get("photo"))
+    product = ProductModel(
+        title=data.get("title"),
+        description=data.get("description"),
+        price=float(data.get("price")),
+        photo_id=data.get("photo"),
+        photo_url=data.get("photo_url"),
+    )
     await db.save(product)
     await state.reset_state()
     await query.message.answer("Товар сохранён.")

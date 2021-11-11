@@ -3,6 +3,7 @@ from aiogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessag
 from aiogram.utils.markdown import hide_link
 from odmantic import AIOEngine
 
+from app.keyboards.inline import ShowGoodsKb
 from app.models import ProductModel
 
 
@@ -20,8 +21,12 @@ async def get_goods(inline: InlineQuery, db: AIOEngine):
                     thumb_url=product.photo_url,
                     description=f"${product.price}, {product.description}",
                     input_message_content=InputTextMessageContent(
-                        product.title + product.description + hide_link(product.photo_url)
+                        message_text=f'<b>Товар:</b> {product.title}\n\n'
+                                     f'<b>Описание:</b> {product.description}'
+                                     f'{hide_link(product.photo_url)}\n\n'
+                                     f'<b>Цена:</b> ${product.price}'
                     ),
+                    reply_markup=await ShowGoodsKb().get(product.id),
                 )
             )
     else:

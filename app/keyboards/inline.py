@@ -1,4 +1,5 @@
 from aiogram.utils.callback_data import CallbackData
+from aiogram.utils.deep_linking import get_start_link
 
 from app.utils.markup_constructor import InlineMarkupConstructor
 
@@ -59,3 +60,13 @@ class EditGoodsKb(InlineMarkupConstructor):
             {'text': "Сохранить", 'cb': self.save}
         ]
         return self.markup(actions, [1] * len(actions))
+
+
+class ShowGoodsKb(InlineMarkupConstructor):
+
+    async def get(self, good_id: str):
+        schema = [1]
+        actions = [
+            {'text': 'Показать товар', 'url': await get_start_link(f'good_id-{good_id}')},
+        ]
+        return self.markup(actions, schema)

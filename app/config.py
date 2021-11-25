@@ -26,3 +26,5 @@ class Config(NamedTuple):
     MONGODB_URI += f"{MONGODB_HOSTNAME}:{MONGODB_PORT}"
 
     DOWNLOADS_PATH = BASE_DIR / 'downloads'
+
+    PROVIDER_TOKEN = __env.str('PROVIDER_TOKEN')

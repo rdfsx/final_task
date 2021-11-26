@@ -41,17 +41,17 @@ async def get_goods(inline: InlineQuery, db: AIOEngine):
 
 async def change_amount(q: CallbackQuery, db: AIOEngine, callback_data: dict):
     await q.answer()
-    action = callback_data['@']
     product = await db.find_one(ProductModel, ProductModel.id.eq(ObjectId(callback_data['goods_id'])))
-    actual_amount = int(q.message.reply_markup.inline_keyboard[0][0].values.get('text'))
-    new_amount = actual_amount + 1 if action == 'add_goods' else actual_amount - 1
-    if new_amount < 1:
-        new_amount = actual_amount
-    await q.message.edit_reply_markup(
-        await ShowGoodsKb().get(
+    new_amount = int(callback_data["amount"])
+    await q.bot.edit_message_reply_markup(
+        chat_id=q.message.chat.id if q.message else None,
+        message_id=q.message.message_id if q.message else None,
+        inline_message_id=q.inline_message_id,
+        reply_markup=await ShowGoodsKb().get(
             callback_data['goods_id'],
             product.price,
             new_amount,
+            True,
         )
     )
 

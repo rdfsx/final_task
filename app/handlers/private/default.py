@@ -7,6 +7,7 @@ from app.models import UserModel
 
 
 async def get_default_message(m: Message, user: UserModel, db: AIOEngine):
+    await m.answer(quote_html(m))
     await m.answer(quote_html(user))
 
 

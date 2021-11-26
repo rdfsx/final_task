@@ -16,8 +16,8 @@ async def get_start_message(m: Message, db: AIOEngine):
                               reply_markup=await ShowGoodsKb().get(
                                   product.id,
                                   product.price,
-                                  int(args.replace("good_id-", "").split("-")[1])
-                                  ),
+                                  int(args.replace("good_id-", "").split("-")[1]),
+                                  True),
                               )
     await m.answer(f"Привет, {m.from_user.first_name}!")
 

@@ -7,7 +7,7 @@ from app.config import Config
 
 
 @dataclass
-class Item:
+class SaleItem:
     title: str
     description: str
     start_parameter: str

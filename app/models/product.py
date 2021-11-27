@@ -9,6 +9,8 @@ class ProductModel(Model):
     description: str = Field(...)
     price: float = Field(...)
     photo_id: str = Field(...)
+    photo_width: int = Field(...)
+    photo_height: int = Field(...)
     photo_url: str = Field(...)
     created_at: datetime = Field(default=datetime.now())
     updated_at: datetime = Field(default=datetime.now())

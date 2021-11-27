@@ -1,9 +1,9 @@
 from aiogram import Dispatcher, types
 from aiogram.types import Message, ShippingQuery, PreCheckoutQuery, LabeledPrice
 
-from app.models.item import Item
+from app.models.sale_item import SaleItem
 
-Tesla_S = Item(
+Tesla_S = SaleItem(
     title="Tesla Model S",
     description="Tesla Model S — пятидверный электромобиль производства американской компании Tesla. "
                 "Прототип был впервые показан на Франкфуртском автосалоне в 2009 году; "
@@ -12,7 +12,7 @@ Tesla_S = Item(
     prices=[
         LabeledPrice(
             label="Тесла Model S",
-            amount=10_000_00
+            amount=560
         )
     ],
     start_parameter="create_invoice_tesla_model_s",
@@ -21,7 +21,7 @@ Tesla_S = Item(
     photo_height=323,
 )
 
-Tesla_X = Item(
+Tesla_X = SaleItem(
     title="Tesla Model X",
     description="Tesla Model X — полноразмерный электрический кроссовер производства компании Tesla. "
                 "Прототип был впервые показан в Лос-Анджелесе 9 февраля 2012 года. "

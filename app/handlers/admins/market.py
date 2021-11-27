@@ -3,6 +3,7 @@ import os
 import time
 from typing import Union
 
+from PIL import Image
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
@@ -42,7 +43,7 @@ async def get_photo_failed(m: Message):
 
 
 async def final_goods(m: Message, state: FSMContext):
-    text = m.caption.split()
+    text = m.caption.split("\n")
     if len(text) != 3:
         return await m.answer("Неверный формат текста: строк должно быть ровно три. Пришли ещё раз.",
                               reply_markup=CancelKb().get())
@@ -55,11 +56,17 @@ async def final_goods(m: Message, state: FSMContext):
     title = text[0]
     description = text[1]
     photo_file = (await m.photo[-1].download(Config.DOWNLOADS_PATH / str(time.time()))).name
+    start_time = time.time()
+    image = Image.open(photo_file)
+    photo_width, photo_height = image.size
+    print("--- %s seconds ---" % (time.time() - start_time))
     await state.update_data(
         photo=photo,
         title=title,
         description=description,
         price=price,
+        photo_width=photo_width,
+        photo_height=photo_height,
         photo_url=(await upload_to_telegraph(photo_file))[0]
     )
     os.remove(photo_file)
@@ -84,6 +91,8 @@ async def save_goods(query: CallbackQuery, state: FSMContext, db: AIOEngine):
         description=data.get("description"),
         price=float(data.get("price")),
         photo_id=data.get("photo"),
+        photo_width=data.get("photo_width"),
+        photo_height=data.get("photo_height"),
         photo_url=data.get("photo_url"),
     )
     await db.save(product)

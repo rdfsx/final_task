@@ -67,8 +67,8 @@ class ShowGoodsKb(InlineMarkupConstructor):
     remove_goods_data = CallbackData("remove_goods", "goods_id", "amount")
     buy_goods_data = CallbackData("buy_goods", "goods_id", "amount")
 
-    async def get(self, goods_id: str, price: float, amount: int = 1, is_start: bool = False):
-        schema = [1, 1, 2, 1]
+    async def get(self, goods_id: str, price: float, amount: int = 1):
+        schema = [1, 1, 2, 1, 1]
         actions = [
             {'text': f'{amount}', 'cb': 'pass'},
             {'text': f"Цена: ${round(price * amount, 1)}", 'cb': 'pass'},
@@ -76,9 +76,7 @@ class ShowGoodsKb(InlineMarkupConstructor):
             {'text': '➖', 'cb': 'pass' if amount == 1 else self.remove_goods_data.new(
                 goods_id, amount - 1 if amount > 1 else 1
             )},
+            {'text': 'Показать товар', 'url': await get_start_link(f'good_id-{goods_id}-{amount}')},
+            {'text': 'Купить', 'cb': self.buy_goods_data.new(goods_id, amount)},
         ]
-        if not is_start:
-            actions.append({'text': 'Показать товар', 'url': await get_start_link(f'good_id-{goods_id}-{amount}')})
-        else:
-            actions.append({'text': 'Купить', 'cb': self.buy_goods_data.new(goods_id, amount)})
         return self.markup(actions, schema)

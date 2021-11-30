@@ -2,6 +2,7 @@ from aiogram import Dispatcher
 from aiogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent, CallbackQuery
 from odmantic import AIOEngine, ObjectId
 
+from app.constants.prices import MAX_PRICE, MIN_PRICE
 from app.constants.product import get_product_text
 from app.keyboards.inline import ShowGoodsKb
 from app.models import ProductModel
@@ -40,9 +41,11 @@ async def get_goods(inline: InlineQuery, db: AIOEngine):
 
 
 async def change_amount(q: CallbackQuery, db: AIOEngine, callback_data: dict):
-    await q.answer()
     product = await db.find_one(ProductModel, ProductModel.id.eq(ObjectId(callback_data['goods_id'])))
     new_amount = int(callback_data["amount"])
+    if new_amount * product.price > MAX_PRICE:
+        return await q.answer("Нельзя больше добавить товара! Цена не может быть выше $10,000")
+    await q.answer()
     await q.bot.edit_message_reply_markup(
         chat_id=q.message.chat.id if q.message else None,
         message_id=q.message.message_id if q.message else None,
@@ -51,7 +54,6 @@ async def change_amount(q: CallbackQuery, db: AIOEngine, callback_data: dict):
             callback_data['goods_id'],
             product.price,
             new_amount,
-            True,
         )
     )
 

@@ -10,7 +10,6 @@ from app.models.sale_item import SaleItem
 async def buy_goods(q: CallbackQuery, db: AIOEngine, callback_data: dict):
     await q.answer()
     product = await db.find_one(ProductModel, ProductModel.id.eq(ObjectId(callback_data['goods_id'])))
-    print(round(product.price) * int(callback_data["amount"]))
     sale_product = SaleItem(
         title=product.title,
         description=product.description,
@@ -18,7 +17,7 @@ async def buy_goods(q: CallbackQuery, db: AIOEngine, callback_data: dict):
         prices=[
             LabeledPrice(
                 label=product.title,
-                amount=round(product.price) * int(callback_data["amount"])
+                amount=round(product.price) * int(callback_data["amount"]) * 100
             )
         ],
         start_parameter=f"create_invoice_{product.id}",

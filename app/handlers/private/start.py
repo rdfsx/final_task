@@ -16,8 +16,7 @@ async def get_product(m: Message, db: AIOEngine):
                               reply_markup=await ShowGoodsKb().get(
                                   product.id,
                                   product.price,
-                                  int(args.replace("good_id-", "").split("-")[1]),
-                                  True),
+                                  int(args.replace("good_id-", "").split("-")[1])),
                               )
 
 

@@ -11,6 +11,7 @@ from aiogram.utils.markdown import hbold
 from odmantic import AIOEngine
 
 from app.config import Config
+from app.constants.prices import MAX_PRICE, MIN_PRICE
 from app.keyboards.inline import CancelKb, EditGoodsKb
 from app.models import ProductModel
 from app.services.uploader import upload_to_telegraph
@@ -49,6 +50,8 @@ async def final_goods(m: Message, state: FSMContext):
                               reply_markup=CancelKb().get())
     try:
         price = float(text[2])
+        if MIN_PRICE > price > MAX_PRICE:
+            return await m.answer("Цена не может быть больше $10000 или ниже чем $0.1")
     except ValueError:
         return await m.answer("Ты ввёл цену в неверном формате! Цену нужно вводить числом.",
                               reply_markup=CancelKb().get())
@@ -56,10 +59,8 @@ async def final_goods(m: Message, state: FSMContext):
     title = text[0]
     description = text[1]
     photo_file = (await m.photo[-1].download(Config.DOWNLOADS_PATH / str(time.time()))).name
-    start_time = time.time()
     image = Image.open(photo_file)
     photo_width, photo_height = image.size
-    print("--- %s seconds ---" % (time.time() - start_time))
     await state.update_data(
         photo=photo,
         title=title,

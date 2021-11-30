@@ -1,6 +1,6 @@
 from aiogram import Dispatcher
 from aiogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent, CallbackQuery
-from odmantic import AIOEngine, ObjectId
+from odmantic import AIOEngine, ObjectId, query
 
 from app.constants.prices import MAX_PRICE, MIN_PRICE
 from app.constants.product import get_product_text
@@ -8,11 +8,17 @@ from app.keyboards.inline import ShowGoodsKb
 from app.models import ProductModel
 
 
-async def get_goods(inline: InlineQuery, db: AIOEngine):
+async def get_goods(iq: InlineQuery, db: AIOEngine):
     limit = 20
-    offset = 0 if inline.offset == '' else int(inline.offset)
+    offset = 0 if iq.offset == '' else int(iq.offset)
     results = []
-    data = await db.find(ProductModel, limit=limit, skip=offset)
+    print(iq.query)
+    db_query = query.match(
+        ProductModel.title, rf"({iq.query})"
+    ) | query.match(
+        ProductModel.description, rf"({iq.query})"
+    )
+    data = await db.find(ProductModel, db_query, limit=limit, skip=offset)
     if data:
         for product in data:
             results.append(
@@ -37,7 +43,7 @@ async def get_goods(inline: InlineQuery, db: AIOEngine):
             )
         ]
     next_offset = str(offset + limit) if len(data) >= limit else ''
-    await inline.answer(results=results, next_offset=next_offset, cache_time=10)
+    await iq.answer(results=results, next_offset=next_offset, cache_time=10)
 
 
 async def change_amount(q: CallbackQuery, db: AIOEngine, callback_data: dict):

@@ -1,15 +1,18 @@
-import json
 from datetime import datetime
 
-from odmantic import Field, Model
+from beanie import before_event, Insert, Replace, SaveChanges
+from pydantic import Field
+
+from app.models.base import TimeBaseModel
 
 
-class ChatModel(Model):
-    id: int = Field(primary_field=True)
+class ChatModel(TimeBaseModel):
+    id: int = Field(...)
     type: str = Field(...)
-    created_at: datetime = Field(default=datetime.now())
-    updated_at: datetime = Field(default=datetime.now())
 
-    class Config:
-        collection = "Chats"
-        json_loads = json.loads
+    class Collection:
+        name = "ChatModel"
+
+    @before_event([Insert, Replace, SaveChanges])
+    def set_updated_at(self):
+        self.updated_at = datetime.utcnow()

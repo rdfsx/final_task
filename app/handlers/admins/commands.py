@@ -6,21 +6,20 @@ import aiofiles.os
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, InputFile, CallbackQuery
-from odmantic import AIOEngine
 
 from app.keyboards.reply import MarketMarkup
 from app.models import UserModel
 
 
-async def get_amount_users(m: Message, db: AIOEngine):
-    amount = await db.count(UserModel)
+async def get_amount_users(m: Message):
+    amount = await UserModel.count()
     await m.answer(f"Количество пользователей в базе данных: {amount}")
 
 
-async def get_exists_users(m: Message, db: AIOEngine):
+async def get_exists_users(m: Message):
     await m.answer("Начинаем подсчет...")
     bot = m.bot
-    users = await db.find(UserModel)
+    users = await UserModel.find_all().to_list()
     count = 0
     for user in users:
         try:
@@ -32,9 +31,9 @@ async def get_exists_users(m: Message, db: AIOEngine):
     await m.answer(f"Активных пользователей: {count}")
 
 
-async def write_users_to_file(m: Message, db: AIOEngine):
+async def write_users_to_file(m: Message):
     await m.answer("Начинаем запись...")
-    users = await db.find(UserModel)
+    users = await UserModel.find_all().to_list()
     filename = 'users.txt'
     async with aiofiles.open(filename, mode='w') as f:
         for user in users:

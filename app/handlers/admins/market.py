@@ -8,7 +8,6 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.markdown import hbold
-from odmantic import AIOEngine
 
 from app.config import Config
 from app.constants.prices import MAX_PRICE, MIN_PRICE
@@ -83,7 +82,7 @@ async def final_goods(m: Message, state: FSMContext):
 
 
 @set_clocks()
-async def save_goods(query: CallbackQuery, state: FSMContext, db: AIOEngine):
+async def save_goods(query: CallbackQuery, state: FSMContext):
     await query.answer()
     await query.message.edit_reply_markup()
     data = await state.get_data()
@@ -96,7 +95,7 @@ async def save_goods(query: CallbackQuery, state: FSMContext, db: AIOEngine):
         photo_height=data.get("photo_height"),
         photo_url=data.get("photo_url"),
     )
-    await db.save(product)
+    await product.create()
     await state.reset_state()
     await query.message.answer("Товар сохранён.")
 

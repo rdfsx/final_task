@@ -1,6 +1,7 @@
 from aiogram import Dispatcher
 from aiogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent, CallbackQuery
-from odmantic import AIOEngine, ObjectId, query
+from beanie import PydanticObjectId
+from beanie.odm.operators.find.evaluation import RegEx
 
 from app.constants.prices import MAX_PRICE, MIN_PRICE
 from app.constants.product import get_product_text
@@ -8,17 +9,17 @@ from app.keyboards.inline import ShowGoodsKb
 from app.models import ProductModel
 
 
-async def get_goods(iq: InlineQuery, db: AIOEngine):
+async def get_goods(iq: InlineQuery):
     limit = 20
     offset = 0 if iq.offset == '' else int(iq.offset)
     results = []
     print(iq.query)
-    db_query = query.match(
+    db_query = RegEx(
         ProductModel.title, rf"({iq.query})"
-    ) | query.match(
+    ) or RegEx(
         ProductModel.description, rf"({iq.query})"
     )
-    data = await db.find(ProductModel, db_query, limit=limit, skip=offset)
+    data = await ProductModel.find(db_query, limit=limit, skip=offset).to_list()
     if data:
         for product in data:
             results.append(
@@ -30,7 +31,7 @@ async def get_goods(iq: InlineQuery, db: AIOEngine):
                     input_message_content=InputTextMessageContent(
                         message_text=get_product_text(product),
                     ),
-                    reply_markup=await ShowGoodsKb().get(product.id, product.price),
+                    reply_markup=await ShowGoodsKb().get(str(product.id), product.price),
                 )
             )
     else:
@@ -46,8 +47,8 @@ async def get_goods(iq: InlineQuery, db: AIOEngine):
     await iq.answer(results=results, next_offset=next_offset, cache_time=10)
 
 
-async def change_amount(q: CallbackQuery, db: AIOEngine, callback_data: dict):
-    product = await db.find_one(ProductModel, ProductModel.id.eq(ObjectId(callback_data['goods_id'])))
+async def change_amount(q: CallbackQuery, callback_data: dict):
+    product = await ProductModel.get(PydanticObjectId(callback_data['goods_id']))
     new_amount = int(callback_data["amount"])
     if new_amount * product.price > MAX_PRICE:
         return await q.answer("Нельзя больше добавить товара! Цена не может быть выше $10,000")

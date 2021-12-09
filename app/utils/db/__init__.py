@@ -1,5 +1,5 @@
-from .mongodb import MyODManticMongo
+from .mongodb import MyBeanieMongo
 
 __all__ = (
-    "MyODManticMongo",
+    "MyBeanieMongo",
 )

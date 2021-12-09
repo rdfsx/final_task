@@ -1,20 +1,18 @@
 from aiogram import Dispatcher
 from aiogram.types import Message
-from aiogram.utils.markdown import hide_link
-from odmantic import AIOEngine, ObjectId
+from beanie import PydanticObjectId
 
 from app.constants.product import get_product_text
 from app.keyboards.inline import ShowGoodsKb
-from app.models import UserModel, ProductModel
+from app.models import ProductModel
 
 
-async def get_product(m: Message, db: AIOEngine):
+async def get_product(m: Message):
     args = m.get_args()
-    if product := await db.find_one(
-            ProductModel, ProductModel.id.eq(ObjectId(args.replace("good_id-", "").split("-")[0]))):
+    if product := await ProductModel.get(PydanticObjectId(args.replace("good_id-", "").split("-")[0])):
         return await m.answer(get_product_text(product),
                               reply_markup=await ShowGoodsKb().get(
-                                  product.id,
+                                  str(product.id),
                                   product.price,
                                   int(args.replace("good_id-", "").split("-")[1])),
                               )

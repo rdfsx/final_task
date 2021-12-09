@@ -1,15 +1,15 @@
 from aiogram import Dispatcher
 from aiogram.types import CallbackQuery, LabeledPrice
-from odmantic import AIOEngine, ObjectId
+from beanie import PydanticObjectId
 
 from app.keyboards.inline import ShowGoodsKb
 from app.models import ProductModel
 from app.models.sale_item import SaleItem
 
 
-async def buy_goods(q: CallbackQuery, db: AIOEngine, callback_data: dict):
+async def buy_goods(q: CallbackQuery, callback_data: dict):
     await q.answer()
-    product = await db.find_one(ProductModel, ProductModel.id.eq(ObjectId(callback_data['goods_id'])))
+    product = await ProductModel.get(PydanticObjectId(callback_data['goods_id']))
     sale_product = SaleItem(
         title=product.title,
         description=product.description,
@@ -25,7 +25,7 @@ async def buy_goods(q: CallbackQuery, db: AIOEngine, callback_data: dict):
         photo_width=product.photo_width,
         photo_height=product.photo_height,
     )
-    await q.bot.send_invoice(chat_id=q.from_user.id, **sale_product.generate_invoice(), payload=product.id)
+    await q.bot.send_invoice(chat_id=q.from_user.id, **sale_product.generate_invoice(), payload=str(product.id))
 
 
 def setup(dp: Dispatcher):

@@ -2,7 +2,6 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram_broadcaster import MessageBroadcaster
-from odmantic import AIOEngine
 
 from app.keyboards.inline import CancelKb
 from app.models import UserModel
@@ -21,8 +20,8 @@ async def cancel_broadcast(call: CallbackQuery, state: FSMContext):
     await call.message.answer('Отменено.')
 
 
-async def start_broadcasting(m: Message, state: FSMContext, db: AIOEngine):
-    chats = await db.find(UserModel)
+async def start_broadcasting(m: Message, state: FSMContext):
+    chats = await UserModel.find_all().to_list()
     broadcaster = MessageBroadcaster(chats=[chat.id for chat in chats], message=m)
     await state.reset_state()
     await m.answer("Рассылка запущена.")
